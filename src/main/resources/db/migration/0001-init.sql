@@ -2,8 +2,6 @@
 
 --changeset me:1
 --comment: initial migration
-
-
 CREATE TABLE IF NOT EXISTS roles
 (
     id   SERIAL PRIMARY KEY,
@@ -22,10 +20,8 @@ COMMENT ON TABLE roles IS 'Таблица с ролями';
 CREATE TABLE IF NOT EXISTS users
 (
     id       SERIAL PRIMARY KEY,
-    name     TEXT NOT NULL,
-    login    TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    role_id  INT REFERENCES roles (id)
+    username     TEXT NOT NULL,
+    password TEXT NOT NULL
 );
 
 COMMENT ON TABLE users IS 'Таблица с пользователями';
