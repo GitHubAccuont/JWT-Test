@@ -1,9 +1,13 @@
 package org.justme.jwttest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+//Контроллер для проверки работы токенов для входа/ ролей
 @RestController
-public class LoginController {
+@RequestMapping("/api")
+public class TestController {
 
     @GetMapping("/admin")
     public String admin(){
@@ -15,8 +19,8 @@ public class LoginController {
         return "User page";
     }
 
-    @GetMapping("/")
+    @GetMapping("/test")
     public String open(){
-        return "Empty page";
+        return "Test page";
     }
 }
