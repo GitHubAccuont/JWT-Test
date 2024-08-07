@@ -1,6 +1,5 @@
 package org.justme.jwttest.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,10 +18,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JWTAuthEntryPoint entryPoint;
-    @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private final JWTAuthEntryPoint entryPoint;
+    private final CustomUserDetailsService customUserDetailsService;
+
+    public SecurityConfig(JWTAuthEntryPoint entryPoint, CustomUserDetailsService customUserDetailsService) {
+        this.entryPoint = entryPoint;
+        this.customUserDetailsService = customUserDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,6 +36,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequestsConfigurer ->
                         authorizeRequestsConfigurer
                                 .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/user").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                                .requestMatchers("/api/admin").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults());
 

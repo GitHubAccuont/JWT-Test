@@ -5,6 +5,8 @@ import org.justme.jwttest.data.dto.LoginRequest;
 import org.justme.jwttest.data.dto.RegisterRequest;
 import org.justme.jwttest.data.entity.Role;
 import org.justme.jwttest.data.entity.UserEntity;
+import org.justme.jwttest.data.exception.DefaultROleNotFoundException;
+import org.justme.jwttest.data.exception.UserAlreadyExistsException;
 import org.justme.jwttest.data.repository.RoleRepository;
 import org.justme.jwttest.data.repository.UserRepository;
 import org.justme.jwttest.security.JWTGenerator;
@@ -21,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.management.relation.RoleInfoNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,9 +63,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) throws RoleInfoNotFoundException {
+    public ResponseEntity<String> registerUser(@RequestBody RegisterRequest request) throws UserAlreadyExistsException, DefaultROleNotFoundException {
         if (userRepository.existsByName(request.getUsername())) {
-            return new ResponseEntity<>("Taken", HttpStatus.BAD_REQUEST);
+            throw new UserAlreadyExistsException(String.format("Имя пользователя: \"%s\" уже занято", request.getUsername()));
         }
         UserEntity user = new UserEntity();
 
@@ -72,12 +73,13 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByName("USER").orElseThrow(() -> new RoleInfoNotFoundException("Error during roles assignement")));
+
+        roles.add(roleRepository.findByName("ROLE_USER").orElseThrow(() -> new DefaultROleNotFoundException("Роль по умолчанию для регистрации не найдена")));
 
         user.setRoleSet(roles);
 
         userRepository.save(user);
 
-        return new ResponseEntity<>("New User Registered", HttpStatus.CREATED);
+        return new ResponseEntity<>("Новый пользователь зарегистрирован", HttpStatus.CREATED);
     }
 }
